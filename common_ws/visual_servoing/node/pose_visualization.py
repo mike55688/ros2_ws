@@ -28,19 +28,19 @@ class PoseVisualization(Node):
         self.root = tk.Tk()
         self.root.title("Robot Visualization")
 
-        self.robot_pose_label = tk.Label(self.root, text="Robot Pose: x=0.0, y=0.0, theta=0.0")
-        self.robot_pose_label.pack()
+        # self.robot_pose_label = tk.Label(self.root, text="Robot Pose: x=0.0, y=0.0, theta=0.0")
+        # self.robot_pose_label.pack()
         
-        self.marker_pose_label = tk.Label(self.root, text="Marker Pose: x=0.0, y=0.0, theta=0.0")
-        self.marker_pose_label.pack()
+        # self.marker_pose_label = tk.Label(self.root, text="Marker Pose: x=0.0, y=0.0, theta=0.0")
+        # self.marker_pose_label.pack()
         
-        self.pallet_pose_label = tk.Label(self.root, text="Pallet Pose: x=0.0, y=0.0, theta=0.0")
+        self.pallet_pose_label = tk.Label(self.root, text="apple Pose: x=0.0, y=0.0, theta=0.0")
         self.pallet_pose_label.pack()
 
-        self.fork_pose_label = tk.Label(self.root, text="Fork Position: 0.0")
-        self.fork_pose_label.pack()
+        # self.fork_pose_label = tk.Label(self.root, text="Fork Position: 0.0")
+        # self.fork_pose_label.pack()
         
-        self.pallet_z_pose_label = tk.Label(self.root, text="Pallet Z Pose: z=0.0")
+        self.pallet_z_pose_label = tk.Label(self.root, text="apple Z Pose: z=0.0")
         self.pallet_z_pose_label.pack()
 
         self.update_gui()
@@ -59,14 +59,14 @@ class PoseVisualization(Node):
     def update_gui(self):
         rclpy.spin_once(self)
         self.log_info()
-        self.robot_pose_label.config(text="Robot Pose: x={:.3f}, y={:.3f}, theta={:.3f}".format(
-            self.robot_2d_pose_x, self.robot_2d_pose_y, self.robot_2d_theta))
-        self.marker_pose_label.config(text="Marker Pose: x={:.3f}, y={:.3f}, theta={:.3f}".format(
-            self.marker_2d_pose_x, self.marker_2d_pose_y, self.marker_2d_theta))
-        self.pallet_pose_label.config(text="Pallet Pose: x={:.3f}, y={:.3f}, theta={:.3f}".format(
+        # self.robot_pose_label.config(text="Robot Pose: x={:.3f}, y={:.3f}, theta={:.3f}".format(
+        #     self.robot_2d_pose_x, self.robot_2d_pose_y, self.robot_2d_theta))
+        # self.marker_pose_label.config(text="Marker Pose: x={:.3f}, y={:.3f}, theta={:.3f}".format(
+        #     self.marker_2d_pose_x, self.marker_2d_pose_y, self.marker_2d_theta))
+        self.pallet_pose_label.config(text="apple Pose: x={:.3f}, y={:.3f}, theta={:.3f}".format(
             self.pallet_2d_pose_x, self.pallet_2d_pose_y, self.pallet_2d_theta))
-        self.pallet_z_pose_label.config(text="Pallet Z Pose: z={:.3f}".format(self.pallet_2d_pose_z))  # 更新z轴标签
-        self.fork_pose_label.config(text="Fork Position: {:.3f}".format(self.updownposition))
+        self.pallet_z_pose_label.config(text="apple Z Pose: z={:.3f}".format(self.pallet_2d_pose_z))  # 更新z轴标签
+        # self.fork_pose_label.config(text="Fork Position: {:.3f}".format(self.updownposition))
         self.root.after(100, self.update_gui)
 
     def init_parame(self):
@@ -164,7 +164,7 @@ class PoseVisualization(Node):
             theta = tf_transformations.euler_from_quaternion(quaternion)[1]
             self.pallet_2d_pose_x = -marker_msg.position.z
             self.pallet_2d_pose_y = marker_msg.position.x
-            self.pallet_2d_pose_z = marker_msg.position.y  # 更新z轴信息
+            self.pallet_2d_pose_z = marker_msg.position.y  # 更新z轴信息 1234測試
 
             self.pallet_2d_theta = -theta
             # self.get_logger().info("Pose: x={:.3f}, y={:.3f}, theta={:.3f}".format(self.marker_2d_pose_x, self.marker_2d_pose_y, self.marker_2d_theta))
