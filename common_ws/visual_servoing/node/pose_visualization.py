@@ -37,11 +37,13 @@ class PoseVisualization(Node):
         self.pallet_pose_label = tk.Label(self.root, text="apple Pose: x=0.0, y=0.0, theta=0.0")
         self.pallet_pose_label.pack()
 
-        # self.fork_pose_label = tk.Label(self.root, text="Fork Position: 0.0")
-        # self.fork_pose_label.pack()
-        
-        self.pallet_z_pose_label = tk.Label(self.root, text="apple Z Pose: z=0.0")
+        self.pallet_z_pose_label = tk.Label(self.root, text="apple Pose: z=0.0")
         self.pallet_z_pose_label.pack()
+
+        self.fork_pose_label = tk.Label(self.root, text="Fork Position: 0.0")
+        self.fork_pose_label.pack()
+        
+
 
         self.update_gui()
         self.root.mainloop() 
@@ -64,9 +66,9 @@ class PoseVisualization(Node):
         # self.marker_pose_label.config(text="Marker Pose: x={:.3f}, y={:.3f}, theta={:.3f}".format(
         #     self.marker_2d_pose_x, self.marker_2d_pose_y, self.marker_2d_theta))
         self.pallet_pose_label.config(text="apple Pose: x={:.3f}, y={:.3f}, theta={:.3f}".format(
-            self.pallet_2d_pose_x, self.pallet_2d_pose_y, self.pallet_2d_theta))
-        self.pallet_z_pose_label.config(text="apple Z Pose: z={:.3f}".format(self.pallet_2d_pose_z))  # 更新z轴标签
-        # self.fork_pose_label.config(text="Fork Position: {:.3f}".format(self.updownposition))
+            self.pallet_2d_pose_x, self.pallet_2d_pose_y, self.marker_2d_theta))
+        self.pallet_z_pose_label.config(text="apple Pose: z={:.3f}".format(self.pallet_2d_pose_z))  # 更新z轴标签
+        self.fork_pose_label.config(text="Fork Position: {:.3f}".format(self.updownposition))
         self.root.after(100, self.update_gui)
 
     def init_parame(self):
@@ -79,6 +81,8 @@ class PoseVisualization(Node):
         # AprilTag_variable
         self.marker_2d_pose_x = 0.0
         self.marker_2d_pose_y = 0.0
+        self.marker_2d_pose_z = 0.0
+
         self.marker_2d_theta = 0.0
         # pallet variable
         self.pallet_2d_pose_x = 0.0
@@ -164,7 +168,7 @@ class PoseVisualization(Node):
             theta = tf_transformations.euler_from_quaternion(quaternion)[1]
             self.pallet_2d_pose_x = -marker_msg.position.z
             self.pallet_2d_pose_y = marker_msg.position.x
-            self.pallet_2d_pose_z = marker_msg.position.y  # 更新z轴信息 1234測試
+            self.pallet_2d_pose_z = marker_msg.position.y  # 更新z轴信息
 
             self.pallet_2d_theta = -theta
             # self.get_logger().info("Pose: x={:.3f}, y={:.3f}, theta={:.3f}".format(self.marker_2d_pose_x, self.marker_2d_pose_y, self.marker_2d_theta))
