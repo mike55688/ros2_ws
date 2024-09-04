@@ -41,7 +41,7 @@ class VisualServoingActionServer(Node):
             self.shelf_or_pallet = False  # True: shelf, False: pallet
             self.action_sequence.parking_forkcamera(goal_handle, goal_handle.request.layer)
         elif(goal_handle.request.command == "raise_pallet"):
-            self.shelf_or_pallet = True
+            self.shelf_or_pallet = False
             self.action_sequence.raise_pallet(goal_handle, goal_handle.request.layer)
         elif(goal_handle.request.command == "drop_pallet"):
             self.shelf_or_pallet = True
@@ -69,7 +69,14 @@ class VisualServoingActionServer(Node):
         self.offset_x = 0.0
         self.marker_2d_pose_x = 0.0
         self.marker_2d_pose_y = 0.0
+        self.marker_2d_pose_z = 0.0
+
         self.marker_2d_theta = 0.0
+        # pallet variable
+        self.pallet_2d_pose_x = 0.0
+        self.pallet_2d_pose_y = 0.0
+        self.pallet_2d_theta = 0.0
+        self.pallet_2d_pose_z = 0.0  # 新增的z轴属性
         # Forklift_variable
         self.updownposition = 0.0      
 
@@ -219,7 +226,7 @@ class VisualServoingActionServer(Node):
     def SpinOnce(self):
         # rclpy.spin_once(self)
         return self.robot_2d_pose_x, self.robot_2d_pose_y, self.robot_2d_theta, \
-               self.marker_2d_pose_x, self.marker_2d_pose_y, self.marker_2d_theta
+               self.marker_2d_pose_x, self.marker_2d_pose_y, self.marker_2d_theta ,self.pallet_2d_pose_x ,self.pallet_2d_pose_y ,self.pallet_2d_pose_z
     
     def SpinOnce_fork(self):
         # rclpy.spin_once(self)
@@ -230,12 +237,8 @@ class VisualServoingActionServer(Node):
         theta = tf_transformations.euler_from_quaternion(quaternion)[2]
         if theta < 0:
             theta = theta + math.pi * 2
-        if theta > math.pi * 2:
-            theta = theta - math.pi * 2
+        if theta > math.pi * 2:        print(f"Target pallet_2d_pose_z: {self.marker_2d_pose_x:.10f}")
 
-        self.robot_2d_pose_x = msg.pose.pose.position.x
-        self.robot_2d_pose_y = msg.pose.pose.position.y
-        self.robot_2d_theta = theta
 
         if (self.robot_2d_theta - self.previous_robot_2d_theta) > 5.:
             d_theta = (self.robot_2d_theta - self.previous_robot_2d_theta) - 2 * math.pi
@@ -250,7 +253,7 @@ class VisualServoingActionServer(Node):
         self.robot_2d_theta = self.total_robot_2d_theta
 
     def shelf_callback(self, msg):
-        # self.get_logger().info("Shelf callback")
+        # self.get_logger().info("Shelf callbpallet_callbackack")
         try:
             if self.shelf_or_pallet == True:
                 marker_msg = msg.poses[0]
@@ -273,8 +276,10 @@ class VisualServoingActionServer(Node):
                 marker_msg = msg
                 quaternion = (marker_msg.orientation.x, marker_msg.orientation.y, marker_msg.orientation.z, marker_msg.orientation.w)
                 theta = tf_transformations.euler_from_quaternion(quaternion)[1]
-                self.marker_2d_pose_x = -marker_msg.position.z
-                self.marker_2d_pose_y = marker_msg.position.x + self.offset_x
+                self.pallet_2d_pose_x = -marker_msg.position.z
+                self.pallet_2d_pose_y = marker_msg.position.x + self.offset_x
+                self.pallet_2d_pose_z = marker_msg.position.y  # 更新z轴信息
+
                 self.marker_2d_theta = -theta
                 # self.get_logger().info("pallet Pose: x={:.3f}, y={:.3f}, theta={:.3f}".format(self.marker_2d_pose_x, self.marker_2d_pose_y, self.marker_2d_theta))
             else:
