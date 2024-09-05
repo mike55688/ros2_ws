@@ -203,7 +203,7 @@ class ActionSequence():
 
                 if self.is_sequence_finished == True:
                     current_sequence = RaisePalletSequence.fork_updown.value
-                    self.is_sequence_finished = FalsefnForkFruit
+                    self.is_sequence_finished = False
 
             elif(current_sequence == RaisePalletSequence.fork_updown.value):
                 if layer == 1:
@@ -275,50 +275,25 @@ class ActionSequence():
                 self.visual_servoing_action_server.get_logger().info('Error: {0} does not exist'.format(current_sequence))
                 return
 
-    def fruit_docking(self, goal_handle, layer):
-        current_sequence = DropPalletSequence.init_fork.value
+    def fruit_docking(self, goal_handle, layer):  #製作一個用於水果對接的函數
+        current_sequence = FruitSequence.dead_reckoning.value
 
         while not goal_handle.is_cancel_requested:
             time.sleep(0.1)
 
-            if(current_sequence == DropPalletSequence.init_fork.value):
-                if layer == 1:
-                    self.is_sequence_finished = self.action.fnForkUpdown(self.visual_servoing_action_server.drop_pallet_fork_init_layer1)
-                elif layer == 2:
-                    self.is_sequence_finished = self.action.fnForkUpdown(self.visual_servoing_action_server.drop_pallet_fork_init_layer2)
-                else:
-                    self.visual_servoing_action_server.get_logger().info('Layer is not defined')
-                    return
+            # if(current_sequence == FruitSequence.dead_reckoning.value):
+            #     self.is_sequence_finished = self.action.fnseqMoveToMarkerDist(self.visual_servoing_action_server.fruit_dead_reckoning_dist)
                 
-                if self.is_sequence_finished == True:
-                    current_sequence = DropPalletSequence.dead_reckoning.value
-                    self.is_sequence_finished = False
+            #     if self.is_sequence_finished == True:
+            #         current_sequence = FruitSequence.fork_updown.value
+            #         self.is_sequence_finished = False
 
-            elif(current_sequence == DropPalletSequence.dead_reckoning.value):
-                self.is_sequence_finished = self.action.fnseqMoveToMarkerDist(self.visual_servoing_action_server.drop_pallet_dead_reckoning_dist)
-                
-                if self.is_sequence_finished == True:
-                    current_sequence = DropPalletSequence.fork_updown.value
-                    self.is_sequence_finished = False
+            if(current_sequence == FruitSequence.dead_reckoning.value):
+                    self.is_sequence_finished = self.action.fnForkFruit(self.visual_servoing_action_server.forkcamera_x_pose_hreshold)
 
-            elif(current_sequence == DropPalletSequence.fork_updown.value):
-                if layer == 1:
-                    self.is_sequence_finished = self.action.fnForkUpdown(self.visual_servoing_action_server.drop_pallet_drop_height_layer1)
-                elif layer == 2:
-                    self.is_sequence_finished = self.action.fnForkUpdown(self.visual_servoing_action_server.drop_pallet_drop_height_layer2)
-                else:
-                    self.visual_servoing_action_server.get_logger().info('Layer is not defined')
-                    return
-                
-                if self.is_sequence_finished == True:
-                    current_sequence = DropPalletSequence.back.value
-                    self.is_sequence_finished = False
+                    # if self.is_sequence_finished == True:
+                    #     return
 
-            elif(current_sequence == DropPalletSequence.back.value):
-                self.is_sequence_finished = self.action.fnseqMoveToMarkerDist(self.visual_servoing_action_server.drop_pallet_back_distance)
-
-                if self.is_sequence_finished == True:
-                    return
             else:
                 self.visual_servoing_action_server.get_logger().info('Error: {0} does not exist'.format(current_sequence))
                 return    

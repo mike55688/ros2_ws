@@ -57,10 +57,8 @@ class Action():
     def SpinOnce(self):
         (self.robot_2d_pose_x, self.robot_2d_pose_y, self.robot_2d_theta, 
         self.marker_2d_pose_x, self.marker_2d_pose_y, self.marker_2d_theta,
-        self.pallet_2d_pose_x, self.pallet_2d_pose_y, self.pallet_2d_pose_z) = self.TestAction.SpinOnce()
+        self.pallet_2d_pose_x, self.pallet_2d_pose_y, self.pallet_2d_pose_z) = self.TestAction.SpinOnce()   #新增fruits的xyz軸属性
 
-        # 打印 marker 的位置
-        self.TestAction.get_logger().info(f"Marker 2D Pose: x={self.marker_2d_pose_x}, y={self.marker_2d_pose_y}")
     
     def SpinOnce_fork(self):
         self.updownposition = self.TestAction.SpinOnce_fork()
@@ -306,20 +304,23 @@ class Action():
             self.check_wait_time =0
             return False
     
-    def fnForkFruit(self, max,min):#0~2.7
+    def fnForkFruit(self, x_pose_threshold):#0~2.7
         self.SpinOnce_fork()
         self.SpinOnce()
-        if( self.pallet_2d_pose_z < max and self.pallet_2d_pose_z > min):
-            self.cmd_vel.fnfork(0.0)
-            return True
-        # print("desired_updownposition", desired_updownposition)
-        # print("self.updownposition", self.updownposition)
-        elif self.pallet_2d_pose_z > max:
-            self.cmd_vel.fnfork(-2000.0)
-            return False
-        elif self.pallet_2d_pose_z < min:
+        self.TestAction.get_logger().info(f"Marker 2D Pose: x={self.pallet_2d_pose_x}, y={self.pallet_2d_pose_y}, z={self.pallet_2d_pose_z}")
+        if( self.pallet_2d_pose_z < -x_pose_threshold):
             self.cmd_vel.fnfork(2000.0)
+            self.TestAction.get_logger().info("Fork up")
             return False
+
+        elif (self.pallet_2d_pose_z > x_pose_threshold):
+            self.cmd_vel.fnfork(-2000.0)
+            self.TestAction.get_logger().info("Fork down")
+            return False
+        else :
+            self.cmd_vel.fnfork(0.0)
+            self.TestAction.get_logger().info("Fork stop")
+            return True
         
     def fnSeqdecide(self, decide_dist):#decide_dist偏離多少公分要後退
         self.SpinOnce()
@@ -334,25 +335,17 @@ class Action():
         fork_threshold = 0.001
         if(desired_updownposition < 0):
             return True
-        # print("desired_updownposition", desired_updownposition)
-        # print("self.updownposition", self.updownposition)
+
         if self.updownposition < desired_updownposition - fork_threshold:
             self.cmd_vel.fnfork(2000.0)
             return False
-        elif self.updownposition > desired_updownposition + fork_threshold:
+        dist = self.marker_2d_pose_y
+        if self.updownposition > desired_updownposition + fork_threshold:
             self.cmd_vel.fnfork(-2000.0)
             return False
         else:
             self.cmd_vel.fnfork(0.0)
             return True
-        
-    def fnSeqdecide(self, decide_dist):#decide_dist偏離多少公分要後退
-        self.SpinOnce()
-        dist = self.marker_2d_pose_y
-        if  abs(dist) < abs(decide_dist):
-            return True
-        else:
-            return False
         
 class cmd_vel():
     def __init__(self, TestAction):

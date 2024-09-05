@@ -46,6 +46,9 @@ class VisualServoingActionServer(Node):
         elif(goal_handle.request.command == "drop_pallet"):
             self.shelf_or_pallet = True
             self.action_sequence.drop_pallet(goal_handle, goal_handle.request.layer)
+        elif(goal_handle.request.command == "fruit_docking"):
+            self.shelf_or_pallet = False
+            self.action_sequence.fruit_docking(goal_handle, goal_handle.request.layer)
         else:
             self.get_logger().info("Unknown command")
             goal_handle.abort()
@@ -207,6 +210,14 @@ class VisualServoingActionServer(Node):
         self.get_logger().info("drop_pallet_drop_height_layer2: {}, type: {}".format(self.drop_pallet_drop_height_layer2, type(self.drop_pallet_drop_height_layer2)))
         self.get_logger().info("drop_pallet_back_distance: {}, type: {}".format(self.drop_pallet_back_distance, type(self.drop_pallet_back_distance)))
         self.get_logger().info("drop_pallet_navigation_helght: {}, type: {}".format(self.drop_pallet_navigation_helght, type(self.drop_pallet_navigation_helght)))
+
+        # get fruit_docking parameter
+        self.declare_parameter('forkcamera_x_pose_hreshold', 0.0)
+        self.forkcamera_x_pose_hreshold = self.get_parameter('forkcamera_x_pose_hreshold').get_parameter_value().double_value
+        self.declare_parameter('fruit_dead_reckoning_dist', 0.0)
+        self.fruit_dead_reckoning_dist = self.get_parameter('fruit_dead_reckoning_dist').get_parameter_value().double_value
+
+
 
     def create_subscriber(self):
         self.odom_sub = self.create_subscription(Odometry, self.odom_topic, self.odom_callback, qos_profile=qos_profile_sensor_data, callback_group=self.callback_group)

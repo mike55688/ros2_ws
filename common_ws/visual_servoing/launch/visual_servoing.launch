@@ -44,5 +44,11 @@
     <param name="drop_pallet_drop_height_layer2" value = "0.56" /><!--牙叉放下棧板的高度/-->
     <param name="drop_pallet_back_distance" value = "0.9" /><!--放下棧板後，後退距離/-->
     <!--param name="drop_pallet_navigation_helght" value = "0.0" /--><!--完成放置棧板動作後，接續下一個動作時牙叉高度, TODO 此功能在本版本中尚未實現/-->
+
+    <!--docking with fruit/-->
+    <param name="forkcamera_x_pose_hreshold" value = "0.05" /><!--牙叉相機對位z軸/-->
+    <param name="fruit_dead_reckoning_dist" value = "0.3" /><!--直線移動到距離水果多少公尺的地方/-->
+
+
   </node>
 </launch>
