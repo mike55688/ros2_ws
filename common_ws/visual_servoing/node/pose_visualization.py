@@ -55,7 +55,7 @@ class PoseVisualization(Node):
     def update_canvas(self):
         self.canvas.coords(self.robot_marker, self.robot_2d_pose_x * 50 + 250, self.robot_2d_pose_y * 50 + 250, self.robot_2d_pose_x * 50 + 260, self.robot_2d_pose_y * 50 + 260)
         self.canvas.coords(self.marker_marker, self.marker_2d_pose_x * 50 + 250, self.marker_2d_pose_y * 50 + 250, self.marker_2d_pose_x * 50 + 260, self.marker_2d_pose_y * 50 + 260)
-        self.canvas.coords(self.pallet_marker, self.pallet_2d_pose_x * 50 + 250, self.pallet_2d_pose_y * 50 + 250, self.pallet_2d_pose_x * 50 + 260, self.pallet_2d_pose_y * 50 + 260)
+        self.canvas.coords(self.pallet_marker, self.fruit_2d_pose_x * 50 + 250, self.fruit_2d_pose_y * 50 + 250, self.fruit_2d_pose_x * 50 + 260, self.fruit_2d_pose_y * 50 + 260)
         self.root.after(100, self.update_canvas)
 
     def update_gui(self):
@@ -66,8 +66,8 @@ class PoseVisualization(Node):
         # self.marker_pose_label.config(text="Marker Pose: x={:.3f}, y={:.3f}, theta={:.3f}".format(
         #     self.marker_2d_pose_x, self.marker_2d_pose_y, self.marker_2d_theta))
         self.pallet_pose_label.config(text="apple Pose: x={:.3f}, y={:.3f}, theta={:.3f}".format(
-            self.pallet_2d_pose_x, self.pallet_2d_pose_y, self.marker_2d_theta))
-        self.pallet_z_pose_label.config(text="apple Pose: z={:.3f}".format(self.pallet_2d_pose_z))  # 更新z轴标签
+            self.fruit_2d_pose_x, self.fruit_2d_pose_y, self.pallet_2d_theta))
+        self.pallet_z_pose_label.config(text="apple Pose: z={:.3f}".format(self.fruit_2d_pose_z))  # 更新z轴标签
         self.fork_pose_label.config(text="Fork Position: {:.3f}".format(self.updownposition))
         self.root.after(100, self.update_gui)
 
@@ -85,10 +85,10 @@ class PoseVisualization(Node):
 
         self.marker_2d_theta = 0.0
         # pallet variable
-        self.pallet_2d_pose_x = 0.0
-        self.pallet_2d_pose_y = 0.0
-        self.pallet_2d_theta = 0.0
-        self.pallet_2d_pose_z = 0.0  # 新增的z轴属性
+        self.fruit_2d_pose_x = 0.0
+        self.fruit_2d_pose_y = 0.0
+        self.fruit_2d_pose_z = 0.0  # 新增的z轴属性
+        self.fruit_2d_theta = 0.0
         # Forklift_variable
         self.updownposition = 0.0      
 
@@ -120,7 +120,7 @@ class PoseVisualization(Node):
         self.get_logger().info("Odom: x={}, y={}, theta={}".format(
         self.robot_2d_pose_x, self.robot_2d_pose_y, self.robot_2d_theta))
         self.get_logger().info("AprilTag Pose: x={:.3f}, y={:.3f}, theta={:.3f}".format(self.marker_2d_pose_x, self.marker_2d_pose_y, (self.marker_2d_theta*180/math.pi)))
-        self.get_logger().info("Pallet Pose: x={:.3f}, y={:.3f}, theta={:.3f}".format(self.pallet_2d_pose_x, self.pallet_2d_pose_y, (self.pallet_2d_theta*180/math.pi)))
+        self.get_logger().info("Pallet Pose: x={:.3f}, y={:.3f}, theta={:.3f}".format(self.fruit_2d_pose_x, self.fruit_2d_pose_y, (self.fruit_2d_theta*180/math.pi)))
         self.get_logger().info("Fork position: {}".format(self.updownposition))
 
     def odom_callback(self, msg):
@@ -166,9 +166,9 @@ class PoseVisualization(Node):
             marker_msg = msg
             quaternion = (marker_msg.orientation.x, marker_msg.orientation.y, marker_msg.orientation.z, marker_msg.orientation.w)
             theta = tf_transformations.euler_from_quaternion(quaternion)[1]
-            self.pallet_2d_pose_x = -marker_msg.position.z
-            self.pallet_2d_pose_y = marker_msg.position.x
-            self.pallet_2d_pose_z = marker_msg.position.y  # 更新z轴信息
+            self.fruit_2d_pose_x = -marker_msg.position.z
+            self.fruit_2d_pose_y = marker_msg.position.x
+            self.fruit_2d_pose_z = marker_msg.position.y  # 更新z轴信息
 
             self.pallet_2d_theta = -theta
             # self.get_logger().info("Pose: x={:.3f}, y={:.3f}, theta={:.3f}".format(self.marker_2d_pose_x, self.marker_2d_pose_y, self.marker_2d_theta))

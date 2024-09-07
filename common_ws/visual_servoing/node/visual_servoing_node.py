@@ -48,7 +48,7 @@ class VisualServoingActionServer(Node):
             self.action_sequence.drop_pallet(goal_handle, goal_handle.request.layer)
         elif(goal_handle.request.command == "fruit_docking"):
             self.shelf_or_pallet = False
-            self.action_sequence.fruit_docking(goal_handle, goal_handle.request.layer)
+            self.action_sequence.fruit_docking(goal_handle)
         else:
             self.get_logger().info("Unknown command")
             goal_handle.abort()
@@ -216,6 +216,8 @@ class VisualServoingActionServer(Node):
         self.forkcamera_x_pose_hreshold = self.get_parameter('forkcamera_x_pose_hreshold').get_parameter_value().double_value
         self.declare_parameter('fruit_dead_reckoning_dist', 0.0)
         self.fruit_dead_reckoning_dist = self.get_parameter('fruit_dead_reckoning_dist').get_parameter_value().double_value
+        self.declare_parameter('fruit_dead_reckoning_dist_x', 0.0)
+        self.fruit_dead_reckoning_dist_x = self.get_parameter('fruit_dead_reckoning_dist_x').get_parameter_value().double_value
 
 
 

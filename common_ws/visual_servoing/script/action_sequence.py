@@ -275,7 +275,7 @@ class ActionSequence():
                 self.visual_servoing_action_server.get_logger().info('Error: {0} does not exist'.format(current_sequence))
                 return
 
-    def fruit_docking(self, goal_handle, layer):  #製作一個用於水果對接的函數
+    def fruit_docking(self, goal_handle):  #製作一個用於水果對接的函數
         current_sequence = FruitSequence.dead_reckoning.value
 
         while not goal_handle.is_cancel_requested:
@@ -288,12 +288,18 @@ class ActionSequence():
             #         current_sequence = FruitSequence.fork_updown.value
             #         self.is_sequence_finished = False
 
-            if(current_sequence == FruitSequence.dead_reckoning.value):
-                    self.is_sequence_finished = self.action.fnForkFruit(self.visual_servoing_action_server.forkcamera_x_pose_hreshold)
+            # if(current_sequence == FruitSequence.dead_reckoning.value):
+            #         self.is_sequence_finished = self.action.fnForkFruit(self.visual_servoing_action_server.forkcamera_x_pose_hreshold)
 
                     # if self.is_sequence_finished == True:
                     #     return
 
+
+            if(current_sequence == FruitSequence.dead_reckoning.value):
+                    self.is_sequence_finished = self.action.fnForkFruit_approach(self.visual_servoing_action_server.fruit_dead_reckoning_dist_x)
+
+                    # if self.is_sequence_finished == True:
+                    #     return
             else:
                 self.visual_servoing_action_server.get_logger().info('Error: {0} does not exist'.format(current_sequence))
                 return    

@@ -47,7 +47,8 @@
 
     <!--docking with fruit/-->
     <param name="forkcamera_x_pose_hreshold" value = "0.05" /><!--牙叉相機對位z軸/-->
-    <param name="fruit_dead_reckoning_dist" value = "0.3" /><!--直線移動到距離水果多少公尺的地方/-->
+    <param name="fruit_dead_reckoning_dist" value = "0.3" /><!--牙叉上升到對齊相機容許誤差值/-->
+    <param name="fruit_dead_reckoning_dist_x" value = "-0.2" /><!--直線移動到距離水果多少公尺誤差值/-->
 
 
   </node>

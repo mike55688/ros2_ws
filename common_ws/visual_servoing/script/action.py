@@ -124,7 +124,7 @@ class Action():
                 self.check_wait_time =self.check_wait_time  +1
                 return False
         else:
-            self.cmd_vel.fnTurn(Kp, self.marker_2d_theta)
+            self.cmd_vel.fnTurn(Kp, self.Actionmarker_2d_theta)
             self.check_wait_time =0
             return False
         
@@ -151,30 +151,7 @@ class Action():
         # print("mean", statistics.mean(clean_list))
         return statistics.median(clean_list) 
     
-    def fnSeqChangingDirection(self, threshod): #旋轉到marker的y值為0(叉車正對marker)), threshod為角度誤差值
-        self.SpinOnce()
-        Kp = 0.3
-        desired_angle_turn = math.atan2(self.marker_2d_pose_y, self.marker_2d_pose_x)
-        
-        if desired_angle_turn <0:
-            desired_angle_turn = desired_angle_turn + math.pi
-        else:
-            desired_angle_turn = desired_angle_turn - math.pi
-
-        self.cmd_vel.fnTurn(Kp, desired_angle_turn)
-        
-        if abs(desired_angle_turn) < threshod  :
-            self.cmd_vel.fnStop()
-            if self.check_wait_time > 10 :
-                self.check_wait_time = 0
-                return True
-            else:
-                self.check_wait_time =self.check_wait_time  +1
-                return False
-        else:
-            self.check_wait_time =0
-            return False
-        
+    
     def fnSeqMovingNearbyParkingLot(self, desired_dist_threshold): #如果desired_dist的值小於desired_dist_threshold, 則不執行此動作
         self.SpinOnce()
         Kp = 0.2
@@ -304,16 +281,16 @@ class Action():
             self.check_wait_time =0
             return False
     
-    def fnForkFruit(self, x_pose_threshold):#0~2.7
+    def fnForkFruit(self, z_pose_threshold):#0~2.7  #透過marker的z軸位置來控制牙叉的上下
         self.SpinOnce_fork()
         self.SpinOnce()
         self.TestAction.get_logger().info(f"Marker 2D Pose: x={self.pallet_2d_pose_x}, y={self.pallet_2d_pose_y}, z={self.pallet_2d_pose_z}")
-        if( self.pallet_2d_pose_z < -x_pose_threshold):
+        if( self.pallet_2d_pose_z < -z_pose_threshold):
             self.cmd_vel.fnfork(2000.0)
             self.TestAction.get_logger().info("Fork up")
             return False
 
-        elif (self.pallet_2d_pose_z > x_pose_threshold):
+        elif (self.pallet_2d_pose_z > z_pose_threshold):
             self.cmd_vel.fnfork(-2000.0)
             self.TestAction.get_logger().info("Fork down")
             return False
@@ -322,6 +299,20 @@ class Action():
             self.TestAction.get_logger().info("Fork stop")
             return True
         
+    def fnForkFruit_approach(self, x_pose_threshold):#0~2.7  #透過marker的x軸位置來控制叉車前進
+        self.SpinOnce_fork()
+        self.SpinOnce()
+        self.TestAction.get_logger().info(f"Marker 2D Pose: x={self.pallet_2d_pose_x}, y={self.pallet_2d_pose_y}, z={self.pallet_2d_pose_z}")
+        if( self.pallet_2d_pose_x < x_pose_threshold):
+            self.cmd_vel.fnGoStraight_fruit()
+            self.TestAction.get_logger().info("GoStraight")
+            return False
+        else:
+            self.cmd_vel.fnStop()
+            self.TestAction.get_logger().info("Stop")
+            return True
+
+
     def fnSeqdecide(self, decide_dist):#decide_dist偏離多少公分要後退
         self.SpinOnce()
         dist = self.marker_2d_pose_y
@@ -403,7 +394,12 @@ class cmd_vel():
     def SpinOnce_fork(self):
         rclpy.spin_once(self)
         return self.updownposition
-    
+
+    def fnGoStraight_fruit(self):
+        twist = Twist()
+        twist.linear.x = 0.05
+        self.cmd_pub(twist)
+
 def main(args=None):
     rclpy.init(args=args)
 
