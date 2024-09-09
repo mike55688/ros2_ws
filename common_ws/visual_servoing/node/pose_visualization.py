@@ -68,7 +68,7 @@ class PoseVisualization(Node):
         self.pallet_pose_label.config(text="apple Pose: x={:.3f}, y={:.3f}, theta={:.3f}".format(
             self.fruit_2d_pose_x, self.fruit_2d_pose_y, self.fruit_2d_theta))
         self.pallet_z_pose_label.config(text="apple Pose: z={:.3f}".format(self.fruit_2d_pose_z))  # 更新z轴标签
-        self.fork_pose_label.config(text="Fork Position: {:.3f}".format(self.fruit_2d_theta.updownposition))
+        self.fork_pose_label.config(text="Fork Position: {:.3f}".format(self.fruit_2d_theta))
         self.root.after(100, self.update_gui)
 
     def init_parame(self):
