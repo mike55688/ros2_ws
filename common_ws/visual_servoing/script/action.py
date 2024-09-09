@@ -395,9 +395,9 @@ class cmd_vel():
         rclpy.spin_once(self)
         return self.updownposition
 
-    def fnGoStraight_fruit(self):
+    def fnGoStraight_fruit(self):      #控制叉車前進
         twist = Twist()
-        twist.linear.x = 0.05
+        twist.linear.x = -0.05
         self.cmd_pub(twist)
 
 def main(args=None):

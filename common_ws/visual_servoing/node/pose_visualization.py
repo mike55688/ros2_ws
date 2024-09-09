@@ -66,9 +66,9 @@ class PoseVisualization(Node):
         # self.marker_pose_label.config(text="Marker Pose: x={:.3f}, y={:.3f}, theta={:.3f}".format(
         #     self.marker_2d_pose_x, self.marker_2d_pose_y, self.marker_2d_theta))
         self.pallet_pose_label.config(text="apple Pose: x={:.3f}, y={:.3f}, theta={:.3f}".format(
-            self.fruit_2d_pose_x, self.fruit_2d_pose_y, self.pallet_2d_theta))
+            self.fruit_2d_pose_x, self.fruit_2d_pose_y, self.fruit_2d_theta))
         self.pallet_z_pose_label.config(text="apple Pose: z={:.3f}".format(self.fruit_2d_pose_z))  # 更新z轴标签
-        self.fork_pose_label.config(text="Fork Position: {:.3f}".format(self.updownposition))
+        self.fork_pose_label.config(text="Fork Position: {:.3f}".format(self.fruit_2d_theta.updownposition))
         self.root.after(100, self.update_gui)
 
     def init_parame(self):
@@ -170,7 +170,7 @@ class PoseVisualization(Node):
             self.fruit_2d_pose_y = marker_msg.position.x
             self.fruit_2d_pose_z = marker_msg.position.y  # 更新z轴信息
 
-            self.pallet_2d_theta = -theta
+            self.fruit_2d_theta = -theta
             # self.get_logger().info("Pose: x={:.3f}, y={:.3f}, theta={:.3f}".format(self.marker_2d_pose_x, self.marker_2d_pose_y, self.marker_2d_theta))
         except:
             pass
