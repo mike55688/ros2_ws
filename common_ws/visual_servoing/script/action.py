@@ -274,64 +274,71 @@ class Action():
             #     self.check_wait_time =0    
         return False
     
-    def fnSeqParking(self, parking_dist, kp):
+    def fnSeqParking(self, parking_dist, kp,object_name):
         self.SpinOnce()
         desired_angle_turn = math.atan2(self.marker_2d_pose_y - 0, self.marker_2d_pose_x - 0)
+        if self.TFConfidence(object_name):
 
-        if desired_angle_turn <0:
-            desired_angle_turn = desired_angle_turn + math.pi
-        else:
-            desired_angle_turn = desired_angle_turn - math.pi
-        self.cmd_vel.fnTrackMarker(desired_angle_turn, kp)
-        if (abs(self.marker_2d_pose_x) < parking_dist)  :
-            self.cmd_vel.fnStop()
-            if self.check_wait_time > 10:
-                self.check_wait_time = 0
-                return True
+            if desired_angle_turn <0:
+                desired_angle_turn = desired_angle_turn + math.pi
             else:
-                self.check_wait_time =self.check_wait_time  +1
-        elif (abs(self.marker_2d_pose_x) < parking_dist) and self.check_wait_time:
-            self.cmd_vel.fnStop()
-            if self.check_wait_time > 10:
-                self.check_wait_time = 0
-                return True
+                desired_angle_turn = desired_angle_turn - math.pi
+            self.cmd_vel.fnTrackMarker(desired_angle_turn, kp)
+            if (abs(self.marker_2d_pose_x) < parking_dist)  :
+                self.cmd_vel.fnStop()
+                if self.check_wait_time > 10:
+                    self.check_wait_time = 0
+                    return True
+                else:
+                    self.check_wait_time =self.check_wait_time  +1
+            elif (abs(self.marker_2d_pose_x) < parking_dist) and self.check_wait_time:
+                self.cmd_vel.fnStop()
+                if self.check_wait_time > 10:
+                    self.check_wait_time = 0
+                    return True
+                else:
+                    self.check_wait_time =self.check_wait_time  +1
             else:
-                self.check_wait_time =self.check_wait_time  +1
-        else:
-            self.check_wait_time =0
-            return False
+                self.check_wait_time =0
+                return False
+        return False
     
-    def fnForkFruit(self, z_pose_threshold):#0~2.7  #透過marker的z軸位置來控制牙叉的上下
+    def fnForkFruit(self, z_pose_threshold,object_name):#0~2.7  #透過marker的z軸位置來控制牙叉的上下
         self.SpinOnce_fork()
         self.SpinOnce()
-        self.TestAction.get_logger().info(f"Marker 2D Pose: x={self.pallet_2d_pose_x}, y={self.pallet_2d_pose_y}, z={self.pallet_2d_pose_z}")
-        if( self.pallet_2d_pose_z < -z_pose_threshold):
-            self.cmd_vel.fnfork(2000.0)
-            self.TestAction.get_logger().info("Fork up")
-            return False
+        if self.TFConfidence(object_name):
 
-        elif (self.pallet_2d_pose_z > z_pose_threshold):
-            self.cmd_vel.fnfork(-2000.0)
-            self.TestAction.get_logger().info("Fork down")
-            return False
-        else :
-            self.cmd_vel.fnfork(0.0)
-            self.TestAction.get_logger().info("Fork stop")
-            return True
+            self.TestAction.get_logger().info(f"Marker 2D Pose: x={self.pallet_2d_pose_x}, y={self.pallet_2d_pose_y}, z={self.pallet_2d_pose_z}")
+            if( self.pallet_2d_pose_z < -z_pose_threshold):
+                self.cmd_vel.fnfork(2000.0)
+                self.TestAction.get_logger().info("Fork up")
+                return False
+
+            elif (self.pallet_2d_pose_z > z_pose_threshold):
+                self.cmd_vel.fnfork(-2000.0)
+                self.TestAction.get_logger().info("Fork down")
+                return False
+            else :
+                self.cmd_vel.fnfork(0.0)
+                self.TestAction.get_logger().info("Fork stop")
+                return True
+        return False
         
-    def fnForkFruit_approach(self, x_pose_threshold):#0~2.7  #透過marker的x軸位置來控制叉車前進
+    def fnForkFruit_approach(self, x_pose_threshold,object_name):#0~2.7  #透過marker的x軸位置來控制叉車前進
         self.SpinOnce_fork()
         self.SpinOnce()
-        self.TestAction.get_logger().info(f"Marker 2D Pose: x={self.pallet_2d_pose_x}, y={self.pallet_2d_pose_y}, z={self.pallet_2d_pose_z}")
-        if( self.pallet_2d_pose_x < x_pose_threshold):
-            self.cmd_vel.fnGoStraight_fruit()
-            self.TestAction.get_logger().info("GoStraight")
-            return False
-        else:
-            self.cmd_vel.fnStop()
-            self.TestAction.get_logger().info("Stop")
-            return True
+        if self.TFConfidence(object_name):
 
+            self.TestAction.get_logger().info(f"Marker 2D Pose: x={self.pallet_2d_pose_x}, y={self.pallet_2d_pose_y}, z={self.pallet_2d_pose_z}")
+            if( self.pallet_2d_pose_x < x_pose_threshold):
+                self.cmd_vel.fnGoStraight_fruit()
+                self.TestAction.get_logger().info("GoStraight")
+                return False
+            else:
+                self.cmd_vel.fnStop()
+                self.TestAction.get_logger().info("Stop")
+                return True
+        return False
 
     def fnSeqdecide(self, decide_dist):#decide_dist偏離多少公分要後退
         self.SpinOnce()
