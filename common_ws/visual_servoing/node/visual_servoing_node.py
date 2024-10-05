@@ -240,7 +240,9 @@ class VisualServoingActionServer(Node):
         self.declare_parameter('confidence_minimum', 0.5)
         self.confidence_minimum = self.get_parameter('confidence_minimum').get_parameter_value().double_value
         self.get_logger().info("confidence_minimum: {}, type: {}".format(self.confidence_minimum, type(self.confidence_minimum)))
-
+        self.declare_parameter('TF_replace', 0.5)
+        self.TF_replace = self.get_parameter('TF_replace').get_parameter_value().double_value
+        self.get_logger().info("TF_replace: {}, type: {}".format(self.TF_replace, type(self.TF_replace)))
 
     def create_subscriber(self):
         self.odom_sub = self.create_subscription(Odometry, self.odom_topic, self.odom_callback, qos_profile=qos_profile_sensor_data, callback_group=self.callback_group)

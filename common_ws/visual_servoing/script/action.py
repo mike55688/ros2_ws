@@ -372,7 +372,7 @@ class Action():
             if (not self.detectionConfidence.pallet_detection) or self.detectionConfidence.pallet_confidence < self.TestAction.confidence_minimum:
                 self.cmd_vel.fnStop()
                 return False
-        elif object_name == "bodycamera" and (not self.TestAction.shelf_format):
+        elif object_name == "bodycamera":
             if (not self.detectionConfidence.shelf_detection) or self.detectionConfidence.shelf_confidence < self.TestAction.confidence_minimum:
                 self.cmd_vel.fnStop()
                 return False
