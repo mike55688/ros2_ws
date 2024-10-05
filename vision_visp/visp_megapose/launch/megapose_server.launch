@@ -1,6 +1,6 @@
 <launch>
    <node pkg="visp_megapose" exec="megapose_server_.py" name="megapose_server" output="screen">
-      <param name="mesh_dir" value="$(find-pkg-share visp_megapose)/data/models"/>
+      <param name="mesh_dir" value="/home/kai/ros2_ws/src/vision_visp/visp_megapose/data/models"/>
       <!-- MESHES_DIRECTORY
         Directory containing the 3D models. each 3D model must be
         in its own subfolder -->

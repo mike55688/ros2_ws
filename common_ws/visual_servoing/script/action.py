@@ -17,6 +17,15 @@ import statistics
 def fnCalcDistPoints(x1, x2, y1, y2):
     return math.sqrt((x1 - x2) ** 2. + (y1 - y2) ** 2.)
 
+#------add_confidence------
+@dataclass
+class DetectionConfidence:
+    pallet_confidence: float
+    pallet_detection: bool
+    shelf_confidence: float
+    shelf_detection: bool
+#-------------------------
+
 class Action():
     def __init__(self, TestAction):
         
@@ -54,6 +63,14 @@ class Action():
         self.check_wait_time = 0
         self.is_triggered = False
 
+        # confidence_variable
+        self.detectionConfidence = DetectionConfidence(
+            pallet_confidence = 0.0,
+            pallet_detection = False,
+            shelf_confidence = 0.0,
+            shelf_detection = False
+        )
+
     def SpinOnce(self):
         (self.robot_2d_pose_x, self.robot_2d_pose_y, self.robot_2d_theta, 
         self.marker_2d_pose_x, self.marker_2d_pose_y, self.marker_2d_theta,
@@ -62,6 +79,9 @@ class Action():
     
     def SpinOnce_fork(self):
         self.updownposition = self.TestAction.SpinOnce_fork()
+
+    def SpinOnce_confidence(self):
+        self.detectionConfidence = self.TestAction.SpinOnce_confidence()
 
     def fnseqDeadReckoning(self, dead_reckoning_dist):#(使用里程紀計算)移動到離現在位置dead_reckoning_dist公尺的地方, 1.0 = 朝向marker前進1公尺, -1.0 = 朝向marker後退1公尺
         self.SpinOnce()
@@ -337,6 +357,19 @@ class Action():
         else:
             self.cmd_vel.fnfork(0.0)
             return True
+
+
+    def TFConfidence(self, object_name):#判斷TF是否可信
+        self.SpinOnce_confidence()
+        if object_name == "forkcamera":
+            if (not self.detectionConfidence.pallet_detection) or self.detectionConfidence.pallet_confidence < self.TestAction.confidence_minimum:
+                self.cmd_vel.fnStop()
+                return False
+        elif object_name == "bodycamera" and (not self.TestAction.shelf_format):
+            if (not self.detectionConfidence.shelf_detection) or self.detectionConfidence.shelf_confidence < self.TestAction.confidence_minimum:
+                self.cmd_vel.fnStop()
+                return False
+        return True
         
 class cmd_vel():
     def __init__(self, TestAction):

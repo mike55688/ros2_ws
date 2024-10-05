@@ -7,6 +7,8 @@ from visual_servoing.action import VisualServoing
 from geometry_msgs.msg import PoseArray, Pose, Twist
 from nav_msgs.msg import Odometry
 from forklift_driver.msg import Meteorcar
+from visp_megapose.msg import Confidence
+
 # ROS2 
 import rclpy
 from rclpy.action import ActionServer
@@ -19,6 +21,14 @@ from rclpy.callback_groups import ReentrantCallbackGroup, MutuallyExclusiveCallb
 # The MutuallyExclusiveCallbackGroup creates a group of mutually exclusive callbacks that can be called from multiple threads.
 # 動作流程
 from action_sequence import ActionSequence
+
+@dataclass
+class DetectionConfidence:
+    pallet_confidence: float
+    pallet_detection: bool
+    shelf_confidence: float
+    shelf_detection: bool
+
 
 class VisualServoingActionServer(Node):
     def __init__(self):
@@ -82,6 +92,13 @@ class VisualServoingActionServer(Node):
         self.pallet_2d_pose_z = 0.0  # 新增的z轴属性
         # Forklift_variable
         self.updownposition = 0.0      
+        # confidence_variable
+        self.detectionConfidence = DetectionConfidence(
+            pallet_confidence = 0.0,
+            pallet_detection = False,
+            shelf_confidence = 0.0,
+            shelf_detection = False
+        )
 
     def get_parameters(self):
         # get subscriber topic parameter
@@ -218,7 +235,11 @@ class VisualServoingActionServer(Node):
         self.fruit_dead_reckoning_dist = self.get_parameter('fruit_dead_reckoning_dist').get_parameter_value().double_value
         self.declare_parameter('fruit_dead_reckoning_dist_x', 0.0)
         self.fruit_dead_reckoning_dist_x = self.get_parameter('fruit_dead_reckoning_dist_x').get_parameter_value().double_value
-
+        
+        #get confidence parameter
+        self.declare_parameter('confidence_minimum', 0.5)
+        self.confidence_minimum = self.get_parameter('confidence_minimum').get_parameter_value().double_value
+        self.get_logger().info("confidence_minimum: {}, type: {}".format(self.confidence_minimum, type(self.confidence_minimum)))
 
 
     def create_subscriber(self):
@@ -228,6 +249,7 @@ class VisualServoingActionServer(Node):
         self.forkpose_sub = self.create_subscription(Meteorcar, self.forkpose_topic, self.cbGetforkpos, qos_profile=qos_profile_sensor_data, callback_group=self.callback_group)
         self.cmd_vel_pub = self.create_publisher(Twist, "/cmd_vel", 1, callback_group=self.callback_group)
         self.fork_pub = self.create_publisher(Meteorcar, "/cmd_fork", 1, callback_group=self.callback_group)
+        self.pallet_confidence_sub = self.create_subscription(Confidence, self.pallet_topic + "_confidence", self.cbFruitConfidence, qos_profile=qos_profile_sensor_data, callback_group=self.callback_group)
 
     def log_info(self):
         rclpy.spin_once(self)
@@ -244,6 +266,10 @@ class VisualServoingActionServer(Node):
     def SpinOnce_fork(self):
         # rclpy.spin_once(self)
         return self.updownposition
+
+    def SpinOnce_confidence(self):
+        # rclpy.spin_once(self)
+        return self.detectionConfidence
 
     def odom_callback(self, msg):
         quaternion = (msg.pose.pose.orientation.x, msg.pose.pose.orientation.y, msg.pose.pose.orientation.z, msg.pose.pose.orientation.w)
@@ -303,6 +329,10 @@ class VisualServoingActionServer(Node):
     def cbGetforkpos(self, msg):
         # self.get_logger().info("cbGetforkpos")
         self.updownposition = msg.fork_position
+
+    def cbFruitConfidence(self, msg):
+        self.detectionConfidence.pallet_confidence = msg.object_confidence
+        self.detectionConfidence.pallet_detection = msg.model_detection
 
 def main(args=None):
     rclpy.init(args=args)

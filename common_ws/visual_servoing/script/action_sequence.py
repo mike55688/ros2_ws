@@ -277,30 +277,23 @@ class ActionSequence():
                 return
 
     def fruit_docking(self, goal_handle):  #製作一個用於水果對接的函數
-        current_sequence = FruitSequence.dead_reckoning.value
+        current_sequence = FruitSequence.dead_reckoning_x.value
 
         while not goal_handle.is_cancel_requested:
             time.sleep(0.1)
+            self.visual_servoing_action_server.get_logger().info(f"Current Sequence: {current_sequence}")
 
-            if(current_sequence == FruitSequence.dead_reckoning.value):
-                self.is_sequence_finished = self.action.fnseqMoveToMarkerDist(self.visual_servoing_action_server.fruit_dead_reckoning_dist)
-                
-                if self.is_sequence_finished == True:
-                    current_sequence = FruitSequence.fork_updown.value
-                    self.is_sequence_finished = False
+            # if current_sequence == FruitSequence.dead_reckoning.value:
+            #     self.is_sequence_finished = self.action.fnForkFruit(self.visual_servoing_action_server.forkcamera_x_pose_hreshold)
+            #     if self.is_sequence_finished:
+            #         current_sequence = FruitSequence.dead_reckoning_x.value
+            #         self.is_sequence_finished = False
 
-            if(current_sequence == FruitSequence.fork_updown.value):
-                    self.is_sequence_finished = self.action.fnForkFruit(self.visual_servoing_action_server.forkcamera_x_pose_hreshold)
+            if current_sequence == FruitSequence.dead_reckoning_x.value:
+                self.is_sequence_finished = self.action.fnForkFruit_approach(self.visual_servoing_action_server.fruit_dead_reckoning_dist_x)
+                if self.is_sequence_finished:
+                    return
 
-                    if self.is_sequence_finished == True:
-                        current_sequence = FruitSequence.dead_reckoning_x.value
-                        self.is_sequence_finished = False
-                    
-            if(current_sequence == FruitSequence.dead_reckoning_x.value):
-                    self.is_sequence_finished = self.action.fnForkFruit_approach(self.visual_servoing_action_server.fruit_dead_reckoning_dist_x)
-
-                    if self.is_sequence_finished == True:
-                        return
-            else:
-                self.visual_servoing_action_server.get_logger().info('Error: {0} does not exist'.format(current_sequence))
-                return    
+            # else:
+            #     self.visual_servoing_action_server.get_logger().info(f"Error: {current_sequence} does not exist")
+            #     return
