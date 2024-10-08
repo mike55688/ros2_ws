@@ -17,14 +17,7 @@ import statistics
 def fnCalcDistPoints(x1, x2, y1, y2):
     return math.sqrt((x1 - x2) ** 2. + (y1 - y2) ** 2.)
 
-#------add_confidence------
-@dataclass
-class DetectionConfidence:
-    pallet_confidence: float
-    pallet_detection: bool
-    shelf_confidence: float
-    shelf_detection: bool
-#-------------------------
+
 
 class Action():
     def __init__(self, TestAction):
@@ -63,13 +56,8 @@ class Action():
         self.check_wait_time = 0
         self.is_triggered = False
 
-        # confidence_variable
-        self.detectionConfidence = DetectionConfidence(
-            pallet_confidence = 0.0,
-            pallet_detection = False,
-            shelf_confidence = 0.0,
-            shelf_detection = False
-        )
+   
+   
 
     def SpinOnce(self):
         (self.robot_2d_pose_x, self.robot_2d_pose_y, self.robot_2d_theta, 
@@ -79,9 +67,6 @@ class Action():
     
     def SpinOnce_fork(self):
         self.updownposition = self.TestAction.SpinOnce_fork()
-
-    def SpinOnce_confidence(self):
-        self.detectionConfidence = self.TestAction.SpinOnce_confidence()
 
     def fnseqDeadReckoning(self, dead_reckoning_dist):#(使用里程紀計算)移動到離現在位置dead_reckoning_dist公尺的地方, 1.0 = 朝向marker前進1公尺, -1.0 = 朝向marker後退1公尺
         self.SpinOnce()
@@ -274,71 +259,66 @@ class Action():
             #     self.check_wait_time =0    
         return False
     
-    def fnSeqParking(self, parking_dist, kp,object_name):
+    def fnSeqParking(self, parking_dist, kp):
         self.SpinOnce()
         desired_angle_turn = math.atan2(self.marker_2d_pose_y - 0, self.marker_2d_pose_x - 0)
-        if self.TFConfidence(object_name):
 
-            if desired_angle_turn <0:
-                desired_angle_turn = desired_angle_turn + math.pi
+        if desired_angle_turn <0:
+            desired_angle_turn = desired_angle_turn + math.pi
+        else:
+            desired_angle_turn = desired_angle_turn - math.pi
+        self.cmd_vel.fnTrackMarker(desired_angle_turn, kp)
+        if (abs(self.marker_2d_pose_x) < parking_dist)  :
+            self.cmd_vel.fnStop()
+            if self.check_wait_time > 10:
+                self.check_wait_time = 0
+                return True
             else:
-                desired_angle_turn = desired_angle_turn - math.pi
-            self.cmd_vel.fnTrackMarker(desired_angle_turn, kp)
-            if (abs(self.marker_2d_pose_x) < parking_dist)  :
-                self.cmd_vel.fnStop()
-                if self.check_wait_time > 10:
-                    self.check_wait_time = 0
-                    return True
-                else:
-                    self.check_wait_time =self.check_wait_time  +1
-            elif (abs(self.marker_2d_pose_x) < parking_dist) and self.check_wait_time:
-                self.cmd_vel.fnStop()
-                if self.check_wait_time > 10:
-                    self.check_wait_time = 0
-                    return True
-                else:
-                    self.check_wait_time =self.check_wait_time  +1
+                self.check_wait_time =self.check_wait_time  +1
+        elif (abs(self.marker_2d_pose_x) < parking_dist) and self.check_wait_time:
+            self.cmd_vel.fnStop()
+            if self.check_wait_time > 10:
+                self.check_wait_time = 0
+                return True
             else:
-                self.check_wait_time =0
-                return False
-        return False
+                self.check_wait_time =self.check_wait_time  +1
+        else:
+            self.check_wait_time =0
+            return False
+
     
-    def fnForkFruit(self, z_pose_threshold,object_name):#0~2.7  #透過marker的z軸位置來控制牙叉的上下
+    def fnForkFruit(self, z_pose_threshold):#0~2.7  #透過marker的z軸位置來控制牙叉的上下
         self.SpinOnce_fork()
         self.SpinOnce()
-        if self.TFConfidence(object_name):
 
-            self.TestAction.get_logger().info(f"Marker 2D Pose: x={self.pallet_2d_pose_x}, y={self.pallet_2d_pose_y}, z={self.pallet_2d_pose_z}")
-            if( self.pallet_2d_pose_z < -z_pose_threshold):
-                self.cmd_vel.fnfork(2000.0)
-                self.TestAction.get_logger().info("Fork up")
-                return False
+        self.TestAction.get_logger().info(f"Marker 2D Pose: x={self.pallet_2d_pose_x}, y={self.pallet_2d_pose_y}, z={self.pallet_2d_pose_z}")
+        if( self.pallet_2d_pose_z < -z_pose_threshold):
+            self.cmd_vel.fnfork(2000.0)
+            self.TestAction.get_logger().info("Fork up")
+            return False
 
-            elif (self.pallet_2d_pose_z > z_pose_threshold):
-                self.cmd_vel.fnfork(-2000.0)
-                self.TestAction.get_logger().info("Fork down")
-                return False
-            else :
-                self.cmd_vel.fnfork(0.0)
-                self.TestAction.get_logger().info("Fork stop")
-                return True
-        return False
+        elif (self.pallet_2d_pose_z > z_pose_threshold):
+            self.cmd_vel.fnfork(-2000.0)
+            self.TestAction.get_logger().info("Fork down")
+            return False
+        else :
+            self.cmd_vel.fnfork(0.0)
+            self.TestAction.get_logger().info("Fork stop")
+            return True
         
-    def fnForkFruit_approach(self, x_pose_threshold,object_name):#0~2.7  #透過marker的x軸位置來控制叉車前進
+    def fnForkFruit_approach(self, x_pose_threshold):#0~2.7  #透過marker的x軸位置來控制叉車前進
         self.SpinOnce_fork()
         self.SpinOnce()
-        if self.TFConfidence(object_name):
 
-            self.TestAction.get_logger().info(f"Marker 2D Pose: x={self.pallet_2d_pose_x}, y={self.pallet_2d_pose_y}, z={self.pallet_2d_pose_z}")
-            if( self.pallet_2d_pose_x < x_pose_threshold):
-                self.cmd_vel.fnGoStraight_fruit()
-                self.TestAction.get_logger().info("GoStraight")
-                return False
-            else:
-                self.cmd_vel.fnStop()
-                self.TestAction.get_logger().info("Stop")
-                return True
-        return False
+        self.TestAction.get_logger().info(f"Marker 2D Pose: x={self.pallet_2d_pose_x}, y={self.pallet_2d_pose_y}, z={self.pallet_2d_pose_z}")
+        if( self.pallet_2d_pose_x < x_pose_threshold):
+            self.cmd_vel.fnGoStraight_fruit()
+            self.TestAction.get_logger().info("GoStraight")
+            return False
+        else:
+            self.cmd_vel.fnStop()
+            self.TestAction.get_logger().info("Stop")
+            return True
 
     def fnSeqdecide(self, decide_dist):#decide_dist偏離多少公分要後退
         self.SpinOnce()
@@ -366,17 +346,6 @@ class Action():
             return True
 
 
-    def TFConfidence(self, object_name):#判斷TF是否可信
-        self.SpinOnce_confidence()
-        if object_name == "forkcamera":
-            if (not self.detectionConfidence.pallet_detection) or self.detectionConfidence.pallet_confidence < self.TestAction.confidence_minimum:
-                self.cmd_vel.fnStop()
-                return False
-        elif object_name == "bodycamera":
-            if (not self.detectionConfidence.shelf_detection) or self.detectionConfidence.shelf_confidence < self.TestAction.confidence_minimum:
-                self.cmd_vel.fnStop()
-                return False
-        return True
         
 class cmd_vel():
     def __init__(self, TestAction):

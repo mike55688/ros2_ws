@@ -283,7 +283,7 @@ class ActionSequence():
             time.sleep(0.1)
 
             if(current_sequence == FruitSequence.fork_updown.value):
-                    self.is_sequence_finished = self.action.fnForkFruit(self.visual_servoing_action_server.forkcamera_x_pose_hreshold,"bodycamera")
+                    self.is_sequence_finished = self.action.fnForkFruit(self.visual_servoing_action_server.forkcamera_x_pose_hreshold)
 
                     if self.is_sequence_finished == True:
                         current_sequence = FruitSequence.dead_reckoning.value
@@ -291,7 +291,7 @@ class ActionSequence():
                         
 
             elif(current_sequence == FruitSequence.dead_reckoning.value):
-                self.is_sequence_finished = self.action.fnSeqParking(self.visual_servoing_action_server.fruit_parking_stop,0.5,"bodycamera")
+                self.is_sequence_finished = self.action.fnSeqParking(self.visual_servoing_action_server.fruit_parking_stop,0.5)
 
                 if self.is_sequence_finished == True:
                     current_sequence = FruitSequence.dead_reckoning_x.value
@@ -299,7 +299,7 @@ class ActionSequence():
             
           
             elif(current_sequence == FruitSequence.dead_reckoning_x.value):
-                    self.is_sequence_finished = self.action.fnForkFruit_approach(self.visual_servoing_action_server.fruit_dead_reckoning_dist_x,"bodycamera")
+                    self.is_sequence_finished = self.action.fnForkFruit_approach(self.visual_servoing_action_server.fruit_dead_reckoning_dist_x)
 
                     if self.is_sequence_finished == True:
                         return

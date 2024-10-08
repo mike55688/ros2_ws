@@ -3,8 +3,8 @@
 
   <node pkg="visp_megapose" exec="megapose_client" name="megapose_client" output="screen">
     <!-- set the image topic and camera info topic -->
-    <param name="image_topic" value="/camera_1/camera/color/image_raw"/>
-    <param name="camera_info_topic" value="/camera_1/camera/color/camera_info"/>
+    <param name="image_topic" value="/camera/camera/color/image_raw"/>
+    <param name="camera_info_topic" value="/camera/camera/color/camera_info"/>
     <param name="camera_tf" value="camera_color_optical_frame"/>
     <!-- select the detection method (CLICK or DNN) -->
     <param name="detector_method" value="DNN"/>  
@@ -13,7 +13,7 @@
     <!-- set the DNN detector detect object name -->
     <param name="object_name" value="red_apple"/>
     <!-- set the Render Object Service Enable (True or False) -->
-    <param name="render_enable" value="False"/>
+    <param name="render_enable" value="True"/>
     <!-- set the UI Enable (True or False) -->
     <param name="UI_enable" value="True"/>
   </node>
