@@ -85,7 +85,7 @@ class VisualServoingActionServer(Node):
         self.pallet_2d_pose_z = 0.0  # 新增的z轴属性
         # Forklift_variable
         self.updownposition = 0.0      
-        self.fruit_parking_stop = 0.0 
+        self.fruit_parking_stop = 0.0      
 
     def get_parameters(self):
         # get subscriber topic parameter
@@ -224,8 +224,6 @@ class VisualServoingActionServer(Node):
         self.fruit_dead_reckoning_dist_x = self.get_parameter('fruit_dead_reckoning_dist_x').get_parameter_value().double_value
         self.declare_parameter('fruit_parking_stop', 0.0)
         self.fruit_parking_stop = self.get_parameter('fruit_parking_stop').get_parameter_value().double_value
-
-
     def create_subscriber(self):
         self.odom_sub = self.create_subscription(Odometry, self.odom_topic, self.odom_callback, qos_profile=qos_profile_sensor_data, callback_group=self.callback_group)
         self.shelf_sub = self.create_subscription(PoseArray, self.shelf_topic, self.shelf_callback, qos_profile=qos_profile_sensor_data, callback_group=self.callback_group)

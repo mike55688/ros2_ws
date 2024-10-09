@@ -260,31 +260,43 @@ class Action():
         return False
     
     def fnSeqParking(self, parking_dist, kp):
-        self.SpinOnce()
-        desired_angle_turn = math.atan2(self.marker_2d_pose_y - 0, self.marker_2d_pose_x - 0)
+        # 打印初始状态信息
+        self.TestAction.get_logger().info(f"Initial marker_2d_pose_x: {self.pallet_2d_pose_x}, marker_2d_pose_y: {self.pallet_2d_pose_y}")
+        self.TestAction.get_logger().info(f"Initial parking_dist: {parking_dist}, kp: {kp}")
 
-        if desired_angle_turn <0:
+        self.SpinOnce()
+        desired_angle_turn = math.atan2(self.pallet_2d_pose_y - 0, self.pallet_2d_pose_x - 0)
+
+        # 打印计算出的 desired_angle_turn
+        self.TestAction.get_logger().info(f"Calculated desired_angle_turn before adjustment: {desired_angle_turn}")
+
+        if desired_angle_turn < 0:
             desired_angle_turn = desired_angle_turn + math.pi
         else:
             desired_angle_turn = desired_angle_turn - math.pi
+
+        # 打印调整后的 desired_angle_turn
+        self.TestAction.get_logger().info(f"Adjusted desired_angle_turn: {desired_angle_turn}")
+
         self.cmd_vel.fnTrackMarker(desired_angle_turn, kp)
-        if (abs(self.marker_2d_pose_x) < parking_dist)  :
+        
+        # 打印当前 marker_2d_pose_x 和 check_wait_time 的状态
+        self.TestAction.get_logger().info(f"Current marker_2d_pose_x: {self.pallet_2d_pose_x}, check_wait_time: {self.check_wait_time}")
+
+        if abs(self.pallet_2d_pose_x) < parking_dist:
             self.cmd_vel.fnStop()
             if self.check_wait_time > 10:
+                self.TestAction.get_logger().info("Condition met: marker is within parking distance, stopping vehicle.")
                 self.check_wait_time = 0
                 return True
             else:
-                self.check_wait_time =self.check_wait_time  +1
-        elif (abs(self.marker_2d_pose_x) < parking_dist) and self.check_wait_time:
-            self.cmd_vel.fnStop()
-            if self.check_wait_time > 10:
-                self.check_wait_time = 0
-                return True
-            else:
-                self.check_wait_time =self.check_wait_time  +1
+                self.check_wait_time += 1
+                self.TestAction.get_logger().info(f"Waiting: incremented check_wait_time to {self.check_wait_time}")
         else:
-            self.check_wait_time =0
+            self.check_wait_time = 0
+            self.TestAction.get_logger().info("Marker not yet within parking distance, resetting check_wait_time to 0.")
             return False
+
 
     
     def fnForkFruit(self, z_pose_threshold):#0~2.7  #透過marker的z軸位置來控制牙叉的上下
